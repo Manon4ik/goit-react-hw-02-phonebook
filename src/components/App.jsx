@@ -1,64 +1,53 @@
 import React, { Component } from "react";
-import { nanoid } from "nanoid";
 
-const INITIAL_STATE = {
-  good: 0,
-  neutral: 0,
-  bad: 0
-};
+import Statistics from "./Statistics/Statistics";
+import FeedbackOptions from "./FeedbackOptions/FeedbackOptions";
 
 export default class App extends Component {
 
   state = {
-    ...INITIAL_STATE
-  };
+    good: 0,
+    neutral: 0,
+    bad: 0
+  }
+
 
   handleChange = evt => {
-    const { name, value, type } = evt.target;
+    //console.log(evt);
+    const { value } = evt.target;
 
-    console.log(evt);
+    this.setState(prevState => ({
+      [value]: prevState[value] + 1
+    }))
 
-    //this.setState([name]:)
-    
+  }
+
+  countTotalFeedback = () => {
+    return Object.values(this.state).reduce((acc, current) => acc + current, 0)
+  }
+
+  countPositiveFeedbackPercentage = () => {
+    return this.countTotalFeedback() == 0 ? 0 : ((this.state.good / this.countTotalFeedback()) * 100).toFixed(2)
   }
 
   render() {
 
-    
     const { good, neutral, bad } = this.state;
-    console.log(good);
-    
+    const totalFeedback = this.countTotalFeedback();
+    const positiveFeedback = this.countPositiveFeedbackPercentage();
+    const options = Object.keys(this.state)
+    //console.log(totalFeedback);
+
     return (
       <div>
         <h2>Please leave feedback</h2>
-        <label>Good
-          <input
-            type="radio"
-            name="feedback"
-            id={nanoid()}
-            value="good" 
-            onChange={this.handleChange} />
-        </label>
-        <label>Neutral
-          <input
-            type="radio"
-            name="feedback"
-            id={nanoid()}
-            value="neutral" 
-            onChange={this.handleChange} />
-        </label>
-        <label>Bad
-          <input
-            type="radio"
-            name="feedback"
-            id={nanoid()}
-            value="bad" 
-            onChange={this.handleChange} />
-        </label>
+        <FeedbackOptions options={options} onLeaveFeedback={this.handleChange}></FeedbackOptions>
+        
+
+        
         <h2>Statistics</h2>
-        <p>Good: <span>{good}</span></p>
-        <p>Neytral: <span>{neutral}</span></p>
-        <p>Bad: <span>{bad}</span></p>
+        <Statistics good={good} neutral={neutral} bad={bad} total={totalFeedback} positivePercentage={positiveFeedback}></Statistics>
+        
 
       </div>
     );
